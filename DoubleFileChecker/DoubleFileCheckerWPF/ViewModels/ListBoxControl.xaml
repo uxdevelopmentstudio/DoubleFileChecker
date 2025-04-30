@@ -1,0 +1,155 @@
+﻿<UserControl x:Class="DoubleFileCheckerWPF.ViewModels.ListBoxControl" 
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:DoubleFileCheckerWPF.ViewModels"
+             xmlns:conv="clr-namespace:DoubleFileCheckerWPF.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:model="clr-namespace:DoubleFileCheckerWPF.Model">
+
+    <UserControl.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <Style TargetType="ListBoxItem">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <ContentPresenter/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="VisibleCheckboxStyle" TargetType="CheckBox">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid>
+                            <!-- Sichtbarer Hintergrund immer -->
+                            <Border x:Name="border"
+                        Background="#FFFFFFFF"
+                        BorderBrush="#FF0078D7"
+                        BorderThickness="2"
+                        CornerRadius="3"
+                        Width="18"
+                        Height="18">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="4" Opacity="0.2" ShadowDepth="1"/>
+                                </Border.Effect>
+                            </Border>
+
+                            <!-- Check-Symbol -->
+                            <Path x:Name="checkMark"
+                      Data="M 2 8 L 8 14 L 16 4"
+                      Stroke="#FF0078D7"
+                      StrokeThickness="2"
+                      StrokeLineJoin="Round"
+                      Visibility="Collapsed"
+                      Stretch="Uniform"/>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="checkMark" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="border" Property="Background" Value="#E6F1F9"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#FF0066B4"/>
+                                <Setter TargetName="checkMark" Property="Stroke" Value="#FF0066B4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CustomTooltipStyle" TargetType="ToolTip">
+            <Setter Property="Background" Value="#FFF0F0F0"/>
+            <Setter Property="Foreground" Value="#FF333333"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#FF999999"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToolTip">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Top"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <ListBox x:Name="MainListBox"
+             ItemsSource="{Binding Images}" 
+             Height="330"
+             ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+             ScrollViewer.VerticalScrollBarVisibility="Disabled">
+
+        <ListBox.ItemsPanel>
+            <ItemsPanelTemplate>
+                <WrapPanel Orientation="Horizontal"/>
+            </ItemsPanelTemplate>
+        </ListBox.ItemsPanel>
+
+        <ListBox.ItemTemplate>
+            <DataTemplate>
+                <Border Width="330" Height="310" Margin="5" Padding="2" Background="#FFF5F5F5">
+                    <Grid>
+                        <!-- Bildcontainer mit Checkbox -->
+                        <Grid VerticalAlignment="Top" Width="330" Height="260">
+                            <Image Source="{Binding Image}" 
+                               Stretch="UniformToFill"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center">
+                                <Image.ToolTip>
+                                    <ToolTip Content="{Binding Path}"
+                                         Style="{StaticResource CustomTooltipStyle}"/>
+                                </Image.ToolTip>
+                            </Image>
+                            <!-- Checkbox oben links -->
+                            <CheckBox IsChecked="{Binding IsSelected}"
+                                  VerticalAlignment="Top"
+                                  HorizontalAlignment="Left"
+                                  Margin="4"
+                                  Width="20"
+                                  Height="20"
+                                  Style="{StaticResource VisibleCheckboxStyle}"
+                                  ToolTip="Zum Löschen markieren" />
+
+                            <!-- Lade-Text -->
+                            <TextBlock Text="Lädt..." 
+                                   Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontStyle="Italic"/>
+                        </Grid>
+
+                        <!-- Dateiinfos unterhalb -->
+                        <StackPanel VerticalAlignment="Bottom">
+                            <TextBlock Text="{Binding Path}" 
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"
+                                   FontSize="10"
+                                   MaxWidth="330"/>
+
+                            <TextBlock Text="{Binding FileName}" 
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"
+                                   FontSize="12"
+                                   MaxWidth="330"/>
+
+                            <TextBlock Text="{Binding FileSize}" 
+                                   FontSize="10"
+                                   Foreground="Gray"
+                                   HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+        </ListBox.ItemTemplate>
+    </ListBox>
+</UserControl>
